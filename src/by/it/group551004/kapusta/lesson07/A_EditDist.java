@@ -4,50 +4,51 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Scanner;
 
-/*
-Задача на программирование: расстояние Левенштейна
-    https://ru.wikipedia.org/wiki/Расстояние_Левенштейна
-    http://planetcalc.ru/1721/
-
-Дано:
-    Две данных непустые строки длины не более 100, содержащие строчные буквы латинского алфавита.
-
-Необходимо:
-    Решить задачу МЕТОДАМИ ДИНАМИЧЕСКОГО ПРОГРАММИРОВАНИЯ
-    Рекурсивно вычислить расстояние редактирования двух данных непустых строк
-
-    Sample Input 1:
-    ab
-    ab
-    Sample Output 1:
-    0
-
-    Sample Input 2:
-    short
-    ports
-    Sample Output 2:
-    3
-
-    Sample Input 3:
-    distance
-    editing
-    Sample Output 3:
-    5
-
-*/
-
 public class A_EditDist {
 
+    int[][] memo; // таблица для мемоизации
 
     int getDistanceEdinting(String one, String two) {
-        //!!!!!!!!!!!!!!!!!!!!!!!!!     НАЧАЛО ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
+        int n = one.length();
+        int m = two.length();
 
+        memo = new int[n + 1][m + 1];
 
-        int result = 0;
-        //!!!!!!!!!!!!!!!!!!!!!!!!!     КОНЕЦ ЗАДАЧИ     !!!!!!!!!!!!!!!!!!!!!!!!!
-        return result;
+        // заполняем -1, чтобы понимать, что значение ещё не вычислено
+        for (int i = 0; i <= n; i++) {
+            for (int j = 0; j <= m; j++) {
+                memo[i][j] = -1;
+            }
+        }
+
+        return dist(one, two, n, m);
     }
 
+    // рекурсивная функция расстояния Левенштейна
+    private int dist(String a, String b, int i, int j) {
+
+        // если уже вычисляли — возвращаем
+        if (memo[i][j] != -1) return memo[i][j];
+
+        // если одна строка пустая — нужно j вставок или i удалений
+        if (i == 0) return memo[i][j] = j;
+        if (j == 0) return memo[i][j] = i;
+
+        int cost = (a.charAt(i - 1) == b.charAt(j - 1)) ? 0 : 1;
+
+        // три варианта:
+        // 1) удаление
+        int del = dist(a, b, i - 1, j) + 1;
+
+        // 2) вставка
+        int ins = dist(a, b, i, j - 1) + 1;
+
+        // 3) замена
+        int rep = dist(a, b, i - 1, j - 1) + cost;
+
+        // выбираем минимум
+        return memo[i][j] = Math.min(del, Math.min(ins, rep));
+    }
 
     public static void main(String[] args) throws FileNotFoundException {
         InputStream stream = A_EditDist.class.getResourceAsStream("dataABC.txt");
